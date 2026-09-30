@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Mecánica - Estudio Interactivo</title>
+    <style>
+        :root {
+            --bg-base: #090d16;
+            --bg-surface: #131c2e;
+            --bg-card: #1a253a;
+            --bg-card-hover: #202e48;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --border: #2a3b58;
+            --success: #10b981;
+            --error: #f43f5e;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.03) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
+        }
+
+        /* Sidebar Moderna */
+        sidebar {
+            width: 300px;
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 25px 0;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+
+        .sidebar-brand {
+            padding: 0 25px 20px 25px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            font-weight: 700;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .menu-category {
+            margin-bottom: 15px;
+        }
+
+        .menu-item {
+            padding: 12px 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.25s ease;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(56, 189, 248, 0.05);
+            color: var(--text-main);
+        }
+
+        .menu-item.active {
+            background-color: var(--accent-glow);
+            color: var(--accent);
+            border-left-color: var(--accent);
+            font-weight: 600;
+        }
+
+        .submenu {
+            padding-left: 15px;
+            margin-top: 5px;
+        }
+
+        .submenu .menu-item {
+            font-size: 0.9rem;
+            padding: 10px 25px;
+        }
+
+        /* Contenedor Principal */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 50px;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header-section {
+            margin-bottom: 35px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            background: linear-gradient(to right, #ffffff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        /* Tarjetas de Test */
+        .quiz-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .quiz-card:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 18px;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .option-label:hover {
+            background-color: var(--bg-card-hover);
+            border-color: var(--accent);
+            transform: translateX(4px);
+        }
+
+        .option-label input {
+            accent-color: var(--accent);
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* Botones de acción */
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9, #2563eb);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1.05rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 14px 32px;
+            font-size: 1.05rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-card-hover);
+            border-color: var(--text-muted);
+        }
+
+        /* Pantallas */
+        #results-view, #explanations-view {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .score-banner {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-surface));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 45px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-banner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, #0ea5e9, #10b981);
+        }
+
+        .score-banner h2 {
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .grade-display {
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: -1px;
+            margin: 15px 0;
+            text-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+        }
+
+        /* Tarjetas de Revisión Completa */
+        .review-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .review-card.correct-card {
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .review-card.incorrect-card {
+            border: 1px solid rgba(244, 63, 94, 0.4);
+        }
+
+        .review-card h4 {
+            color: #ffffff;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .status-badge.correct {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .status-badge.incorrect {
+            background-color: rgba(244, 63, 94, 0.15);
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
+
+        .correct-answer-text {
+            color: var(--success);
+            margin: 8px 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .user-answer-text {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .user-answer-text.is-correct {
+            color: var(--success);
+        }
+
+        .user-answer-text.is-incorrect {
+            color: var(--error);
+        }
+
+        .explanation-box {
+            margin-top: 15px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+
+        .explanation-box.correct-bg {
+            background-color: rgba(16, 185, 129, 0.05);
+            border-left: 4px solid var(--success);
+        }
+
+        .explanation-box.incorrect-bg {
+            background-color: rgba(244, 63, 94, 0.05);
+            border-left: 4px solid var(--error);
+        }
+
+        .actions-wrapper {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-base);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <sidebar>
+        <div class="sidebar-brand">Módulo de Estudio</div>
+        <div class="menu-category">
+            <div class="menu-item active">⚙️ Circuitos de fluidos, suspensión y dirección</div>
+            <div class="submenu">
+                <div class="menu-item active">📄 Tema 1 (Evaluación)</div>
+            </div>
+        </div>
+    </sidebar>
+
+    <main>
+        <div class="container">
+            
+            <!-- Vista 1: Test Interactivo -->
+            <div id="quiz-view">
+                <div class="header-section">
+                    <h1>Circuitos de Fluidos, Suspensión y Dirección</h1>
+                    <p class="subtitle">Tema 1 — Cuestionario interactivo aleatorio</p>
+                </div>
+
+                <form id="quiz-form">
+                    <div id="questions-container"></div>
+
+                    <div style="text-align: center; margin-top: 40px;">
+                        <button type="button" class="btn-primary" onclick="submitQuiz()">✨ Corregir Test y Ver Nota</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Vista 2: Calificación Final -->
+            <div id="results-view">
+                <div class="header-section">
+                    <h1>Resultado de la Evaluación</h1>
+                    <p class="subtitle">Tema 1 — Calificación obtenida sobre tus respuestas</p>
+                </div>
+
+                <div class="score-banner">
+                    <h2>Tu calificación final</h2>
+                    <div id="score-display" class="grade-display">0.00 / 10</div>
+                    <p id="details-text" style="color: var(--text-muted); font-size: 1.1rem;"></p>
+                </div>
+
+                <div class="actions-wrapper">
+                    <button type="button" class="btn-primary" onclick="showExplanationsView()">📖 Ver explicaciones de todas las preguntas</button>
+                    <button type="button" class="btn-secondary" onclick="initQuiz()">🔄 Repetir test (Nuevo orden)</button>
+                </div>
+            </div>
+
+            <!-- Vista 3: Explicaciones y Revisión de TODAS las preguntas -->
+            <div id="explanations-view">
+                <div class="header-section">
+                    <h1>Desglose de Explicaciones Completo</h1>
+                    <p class="subtitle">Revisión de las 17 preguntas con sus explicaciones técnicas</p>
+                </div>
+
+                <div id="review-container"></div>
+
+                <div class="actions-wrapper" style="margin-top: 40px;">
+                    <button type="button" class="btn-primary" onclick="backToResultsView()">← Volver a la nota</button>
+                    <button type="button" class="btn-secondary" onclick="initQuiz()">🔄 Repetir test</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const questionsData = [
+            {
+                id: 1,
+                question: '¿Qué indica exactamente la designación normalizada de medidas "30-42-8" marcada en la cara exterior de un retén de estanqueidad?[cite: 1]',
+                options: [
+                    { text: 'D) Diámetro exterior de 30 mm, diámetro interior de 42 mm y grosor de 8.0 mm.[cite: 1]', correct: false },
+                    { text: 'B) Diámetro interior de 30 mm, diámetro exterior de 42 mm y grosor de 8 mm.[cite: 1]', correct: true },
+                    { text: 'A) Diámetro exterior de 30 mm, diámetro interior de 42 mm y grosor de 8 mm.[cite: 1]', correct: false },
+                    { text: 'C) Diámetro interior de 30 mm, diámetro exterior de 42 mm y sentido de giro de 8 rpm.[cite: 1]', correct: false }
+                ],
+                explanation: 'En los retenes de estanqueidad, la nomenclatura estándar indica primero el diámetro interior (eje), luego el diámetro exterior (alojamiento) y por último el grosor o ancho. Por tanto, 30-42-8 significa 30 mm de interior, 42 mm de exterior y 8 mm de grosor.'
+            },
+            {
+                id: 2,
+                question: '¿Qué tipo de rodamiento radial está diseñado para soportar de manera combinada tanto cargas radiales como cargas axiales?[cite: 2]',
+                options: [
+                    { text: 'B) El rodamiento de rodillos cilíndricos.[cite: 2]', correct: false },
+                    { text: 'C) El rodamiento rígido de bolas de una hilera estándar.[cite: 2]', correct: false },
+                    { text: 'El rodamiento rígido de bolas con contacto angular de 40º.[cite: 2]', correct: true },
+                    { text: 'A) El rodamiento de agujas.[cite: 2]', correct: false }
+                ],
+                explanation: 'Los rodamientos rígidos de bolas con contacto angular (como los de 40º) poseen pistas diseñadas específicamente para soportar esfuerzos simultáneos en dirección radial y axial de forma óptima.'
+            },
+            {
+                id: 3,
+                question: '¿Cuál es la condición indispensable que deben cumplir dos piñones para poder transmitir movimiento mediante el contacto de sus dientes?[cite: 3]',
+                options: [
+                    { text: 'A) Tener diferente paso circular y distinto número de dientes.[cite: 3]', correct: false },
+                    { text: 'D) Que posean una relación de transmisión fraccionaria menor a 0.5.[cite: 3]', correct: false },
+                    { text: 'B) Tener el mismo módulo.[cite: 3]', correct: true },
+                    { text: 'C) Que el diámetro primitivo de la rueda conductora sea menor que el de la conducida.[cite: 3]', correct: false }
+                ],
+                explanation: 'Para que dos ruedas dentadas o piñones puedan engranar correctamente y transmitir movimiento sin interferencias, es obligatorio que compartan exactamente el mismo módulo.'
+            },
+            {
+                id: 4,
+                question: '¿En qué tipo de rótula para el soporte de carga el peso del vehículo presiona el vástago hacia el interior de la propia rótula?[cite: 4]',
+                options: [
+                    { text: 'A) Rótula de tensión.[cite: 4]', correct: false },
+                    { text: 'C) Rótula de compresión.[cite: 4]', correct: true },
+                    { text: 'D) Rótula de mangueta.[cite: 4]', correct: false },
+                    { text: 'B) Rótula de acompañamiento.[cite: 4]', correct: false }
+                ],
+                explanation: 'En las rótulas de compresión, la geometría y la disposición hacen que el peso del vehículo actúe empujando o presionando el vástago hacia el interior del cuerpo de la rótula.'
+            },
+            {
+                id: 5,
+                question: 'Si un esfuerzo aplicado a un material supera su límite elástico sin llegar al límite de rotura, ¿qué comportamiento experimenta mecánicamente al cesar dicho esfuerzo?[cite: 5]',
+                options: [
+                    { text: 'C) El material se rompe instantáneamente por fatiga térmica.[cite: 5]', correct: false },
+                    { text: 'A) El material vuelve por completo a su estado y forma original.[cite: 5]', correct: false },
+                    { text: 'B) El material experimenta una deformación permanente y no vuelve a su estado original.[cite: 5]', correct: true }
+                ],
+                explanation: 'Al rebasar el límite elástico, el material entra en su zona de deformación plástica, lo que significa que al retirar la carga sufrirá una deformación permanente y no recuperará su forma original.'
+            },
+            {
+                id: 6,
+                question: '¿Por qué los casquillos de fricción se fabrican habitualmente de materiales blandos antifricción?[cite: 7]',
+                options: [
+                    { text: 'B) Para garantizar que el desgaste se concentre en el casquillo y que el eje no se deteriore con el uso.[cite: 7]', correct: true },
+                    { text: 'A) Para eliminar por completo el rozamiento mecánico en el eje.[cite: 7]', correct: false },
+                    { text: 'C) Para soportar esfuerzos axiales de gran carga estática sin lubricación.[cite: 7]', correct: false }
+                ],
+                explanation: 'Se utilizan materiales más blandos en los casquillos para garantizar que el desgaste por fricción se concentre exclusivamente en el casquillo (que es un componente fácilmente reemplazable) y evitar que se dañe el eje principal.'
+            },
+            {
+                id: 7,
+                question: '¿Cuál es la constitución geométrica y de diseño de un tornillo prisionero según los elementos de unión?[cite: 8]',
+                options: [
+                    { text: 'A) Un perno de cabeza hexagonal diseñado para unirse a tuercas almenadas.[cite: 8]', correct: false },
+                    { text: 'C) Un anillo elástico de acero que se monta a presión en hendiduras de ejes.[cite: 8]', correct: false },
+                    { text: 'B) Un elemento cilíndrico sin cabeza, con la rosca mecanizada en el cuerpo y un extremo mecanizado tipo Allen, Torx o Philips.[cite: 8]', correct: true }
+                ],
+                explanation: 'El tornillo prisionero se caracteriza por ser un elemento cilíndrico sin cabeza, con rosca en todo su cuerpo y un hueco hexagonal o tipo Allen/Torx en uno de sus extremos para enroscarlo a ras.'
+            },
+            {
+                id: 8,
+                question: '¿Qué función mecánica principal desempeñan las chavetas en su acoplamiento dentro de un chavetero?[cite: 9]',
+                options: [
+                    { text: 'Hacer solidario los piñones y las poleas en su unión con el eje de giro.[cite: 9]', correct: true },
+                    { text: 'Permitir el libre giro relativo entre un eje y una polea.[cite: 9]', correct: false },
+                    { text: 'Soportar esfuerzos longitudinales cortantes actuando como ejes de sujeción elásticos.[cite: 9]', correct: false }
+                ],
+                explanation: 'La función de la chaveta es hacer solidarios el eje y el elemento de transmisión (como una polea o un piñón), transmitiendo el par de giro de uno a otro sin deslizamientos.'
+            },
+            {
+                id: 9,
+                question: '¿Cómo está constituido el diámetro interior de un retén de estanqueidad para evitar pérdidas de fluidos en los ejes de los mecanismos?[cite: 10]',
+                options: [
+                    { text: 'Por medio de una carcasa metálica rígida vulcanizada.[cite: 10]', correct: false },
+                    { text: 'Por medio de un muelle y un labio anular de goma.[cite: 10]', correct: true },
+                    { text: 'Por un anillo Seeger de acero elástico lubricado con grasa.[cite: 10]', correct: false }
+                ],
+                explanation: 'El retén cuenta en su diámetro interior con un labio anular de goma flexible apoyado y presionado firmemente contra el eje mediante un muelle toroidal (muelle de apriete).'
+            },
+            {
+                id: 10,
+                question: '¿Dónde se montan y qué movimiento limitan específicamente los circlips o anillos Seeger fabricados en acero?[cite: 11]',
+                options: [
+                    { text: 'En chaveteros radiales, y limitan el movimiento de giro angular.[cite: 11]', correct: false },
+                    { text: 'En ranuras helicoidales de poleas, y limitan el rozamiento térmico.[cite: 11]', correct: false },
+                    { text: 'En hendiduras practicadas tanto en ejes como en sus soportes, y limitan el movimiento longitudinal de los ejes.[cite: 11]', correct: true }
+                ],
+                explanation: 'Los circlips o anillos Seeger se alojan en ranuras o hendiduras mecanizadas en ejes o alojamientos y actúan como topes mecánicos que limitan el desplazamiento longitudinal de las piezas.'
+            },
+            {
+                id: 11,
+                question: '¿Cuál es la función común de los pasadores de aletas cuando se emplean en combinación con tuercas almenadas?[cite: 12]',
+                options: [
+                    { text: 'Bloquear las tuercas almenadas impidiendo que se aflojen.[cite: 12]', correct: true },
+                    { text: 'Reemplazar a las arandelas planas para repartir esfuerzos de presión.[cite: 12]', correct: false },
+                    { text: 'Incrementar el par de apriete límite de la rosca del tornillo.[cite: 12]', correct: false }
+                ],
+                explanation: 'El pasador de aletas se introduce por el taladro del tornillo y las ranuras de la tuerca almenada para bloquearla mecánicamente y evitar que las vibraciones la aflojen.'
+            },
+            {
+                id: 12,
+                question: '¿Cuáles son las funciones mecánicas asignadas a las arandelas en las uniones atornilladas?',
+                options: [
+                    { text: 'Cambiar el sentido de giro del tornillo y absorber esfuerzos axiales puros.', correct: false },
+                    { text: 'Repartir esfuerzos de presión, garantizar un buen apoyo, proteger las superficies de contacto e impedir que las tuercas se aflojen.', correct: true },
+                    { text: 'Modificar el paso de rosca métrico e impedir la deformación permanente de las piezas.', correct: false }
+                ],
+                explanation: 'Las arandelas distribuyen la carga de apriete de manera uniforme, protegen la superficie de las piezas unidas y evitan que la unión se afloje debido a vibraciones u holguras.'
+            },
+            {
+                id: 13,
+                question: '¿Qué tipo de acoplamiento entre árboles permite deslizamientos relativos axiales, radiales y angulares mediante elementos como la junta cardan?',
+                options: [
+                    { text: 'Acoplamientos rígidos.', correct: false },
+                    { text: 'Acoplamientos móviles o variables.', correct: true },
+                    { text: 'Acoplamientos elásticos.', correct: false }
+                ],
+                explanation: 'Los acoplamientos móviles o variables (como la junta cardan) están diseñados específicamente para permitir la transmisión de par entre árboles cuyos ejes forman un ángulo variable o sufren desplazamientos.'
+            },
+            {
+                id: 14,
+                question: 'En la clasificación de elementos de unión rígidos, ¿cómo se define la unión permanente y qué ejemplos se emplean comúnmente en carrocerías?[cite: 14]',
+                options: [
+                    { text: 'Permite deslizamientos axiales y radiales en caliente, y su ejemplo es la junta cardan.[cite: 14]', correct: false },
+                    { text: 'Se debe romper el elemento de unión para poder realizar el desmontaje, teniendo como ejemplos el remachado, soldado o pegado.[cite: 14]', correct: true },
+                    { text: 'Se puede desmontar fácilmente mediante herramientas comunes y su ejemplo principal son las uniones atornilladas.[cite: 14]', correct: false }
+                ],
+                explanation: 'Una unión permanente es aquella en la que los elementos unidos no se pueden separar sin destruir o romper alguno de los componentes o el propio medio de unión; sus ejemplos típicos son la soldadura, el remache o el pegado.'
+            },
+            {
+                id: 15,
+                question: '¿Qué regla de compatibilidad obligatoria debe cumplirse siempre al utilizar tuercas y tornillos en un acoplamiento mecánico desmontable?[cite: 15]',
+                options: [
+                    { text: 'Siempre deben ser de sistemas de roscas diferentes para asegurar el autofrenado.[cite: 15]', correct: false },
+                    { text: 'Siempre deben ser del mismo sistema de rosca.[cite: 15]', correct: true },
+                    { text: 'El grosor de la tuerca debe duplicar al paso de rosca del tornillo.[cite: 15]', correct: false }
+                ],
+                explanation: 'Para que el montaje sea viable y seguro, el tornillo y la tuerca deben pertenecer siempre strictly al mismo sistema de rosca (por ejemplo, métrica con métrica).'
+            },
+            {
+                id: 16,
+                question: '¿Qué elemento alojan generalmente en su interior los guardapolvos de caucho y con qué finalidad mecánica?',
+                options: [
+                    { text: 'Grasa para lubricar los mecanismos, impermeabilizándolos y protegiéndolos de agentes externos.', correct: true },
+                    { text: 'Aceite lubricante líquido de alto grado para refrigerar juntas de estanqueidad.', correct: false },
+                    { text: 'Silicona autoadhesiva para sellar de forma permanente uniones de carrocería.', correct: false }
+                ],
+                explanation: 'Los guardapolvos de caucho sirven para retener la grasa lubricante en el interior de articulaciones o mecanismos y, al mismo tiempo, sellarlos e impermeabilizarlos frente al polvo, agua y agentes externos.'
+            },
+            {
+                id: 17,
+                question: 'De acuerdo con la dirección de las cargas que soportan, ¿qué tipo de rodamientos están diseñados específicamente para soportar grandes cargas oblicuas (radiales y axiales)?[cite: 16]',
+                options: [
+                    { text: 'Rodamiento de agujas.[cite: 16]', correct: false },
+                    { text: 'Rodamiento rígido de bolas de una o dos hileras.[cite: 16]', correct: false },
+                    { text: 'Rodamientos de rodillos cónicos.[cite: 16]', correct: true }
+                ],
+                explanation: 'Los rodamientos de rodillos cónicos están diseñados específicamente para soportar cargas combinadas y grandes fuerzas oblicuas simultáneas (radiales y axiales).'
+            }
+        ];
+
+        let currentShuffledQuestions = [];
+        let lastScoreData = { score: 0, total: 0, grade: 0, reviewHTML: '' };
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function initQuiz() {
+            currentShuffledQuestions = shuffleArray(questionsData);
+            
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            currentShuffledQuestions.forEach((q, qIndex) => {
+                const shuffledOptions = shuffleArray(q.options);
+
+                let optionsHTML = '';
+                shuffledOptions.forEach((opt) => {
+                    optionsHTML += `
+                        <label class="option-label">
+                            <input type="radio" name="q_${q.id}" value="${opt.correct ? 'true' : 'false'}" data-text="${opt.text.replace(/"/g, '&quot;')}">
+                            <span>${opt.text}</span>
+                        </label>
+                    `;
+                });
+
+                const card = document.createElement('div');
+                card.className = 'quiz-card';
+                card.innerHTML = `
+                    <div class="question-title">${qIndex + 1}. ${q.question}</div>
+                    <div class="options-list">
+                        ${optionsHTML}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            document.getElementById('results-view').style.display = 'none';
+            document.getElementById('explanations-view').style.display = 'none';
+            document.getElementById('quiz-view').style.display = 'block';
+            document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            let reviewHTML = '';
+
+            currentShuffledQuestions.forEach((q, qIndex) => {
+                const selectedInput = document.querySelector(`input[name="q_${q.id}"]:checked`);
+                const correctOpt = q.options.find(o => o.correct);
+                const isCorrect = selectedInput && selectedInput.value === 'true';
+
+                if (isCorrect) {
+                    score++;
+                    let userAnsText = selectedInput.getAttribute('data-text');
+                    reviewHTML += `
+                        <div class="review-card correct-card">
+                            <span class="status-badge correct">✅ Respuesta acertada</span>
+                            <h4>Pregunta ${qIndex + 1}: ${q.question}</h4>
+                            <p class="user-answer-text is-correct"><strong>Tu respuesta:</strong> ${userAnsText}</p>
+                            <div class="explanation-box correct-bg"><strong>¿Por qué es correcta?</strong> ${q.explanation}</div>
+                        </div>
+                    `;
+                } else {
+                    let userAnsText = selectedInput ? selectedInput.getAttribute('data-text') : 'No respondida (En blanco)';
+                    reviewHTML += `
+                        <div class="review-card incorrect-card">
+                            <span class="status-badge incorrect">❌ Respuesta incorrecta / No respondida</span>
+                            <h4>Pregunta ${qIndex + 1}: ${q.question}</h4>
+                            <p class="user-answer-text is-incorrect"><strong>Tu respuesta:</strong> ${userAnsText}</p>
+                            <p class="correct-answer-text">✔ <strong>Respuesta correcta:</strong> ${correctOpt.text}</p>
+                            <div class="explanation-box incorrect-bg"><strong>Explicación:</strong> ${q.explanation}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            const total = currentShuffledQuestions.length;
+            const grade = ((score / total) * 10).toFixed(2);
+
+            lastScoreData = { score, total, grade, reviewHTML };
+
+            document.getElementById('quiz-view').style.display = 'none';
+            document.getElementById('results-view').style.display = 'block';
+
+            document.getElementById('score-display').textContent = `${grade} / 10`;
+            document.getElementById('details-text').textContent = `Has acertado ${score} de ${total} preguntas (${Math.round((score/total)*100)}% de aciertos)`;
+
+            document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showExplanationsView() {
+            document.getElementById('results-view').style.display = 'none';
+            document.getElementById('explanations-view').style.display = 'block';
+            document.getElementById('review-container').innerHTML = lastScoreData.reviewHTML;
+            document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function backToResultsView() {
+            document.getElementById('explanations-view').style.display = 'none';
+            document.getElementById('results-view').style.display = 'block';
+            document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = function() {
+            initQuiz();
+        };
+    </script>
+</body>
+</html>
